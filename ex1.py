@@ -6,7 +6,7 @@ class Produto:
         self.precoUni = precoUni
         self.preco = qnt * precoUni
     def mostrar(self):
-        print(f"seu codigo: {self.codigo}, nome: {self.nome}, quantidade: {self.qnt}, preço unitario: {self.precoUni}")
+        print(f"seu codigo: {self.codigo}, nome: {self.nome}, quantidade: {self.qnt}, preço unitario: {self.precoUni}, o preço total foi de: {self.preco}")
 
-produto = Produto(15, "Console", 1, 4000.00)
+produto = Produto(15, "Console", 5, 4000.00)
 produto.mostrar()
