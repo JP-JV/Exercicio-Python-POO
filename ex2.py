@@ -63,7 +63,7 @@ class Produto:
         self.nome = nome
         self.preco = preco
     def exibir(self):
-        print (f' nome: {self.nome} \n preço: {self.preco}')
+        print (f' nome: {self.nome} preço: {self.preco}')
 
 def cadastrarProdutos():
     while True:
@@ -75,9 +75,14 @@ def cadastrarProdutos():
             return produto
         except(ValueError):
             print("Insira um valor valido, insira novamente")
-
-while True:
-    print("Ola cliente, selecione o que deseja fazer no nosso sistema!")
+def listarProdutos():
+    if (len(produtos) <= 0):
+        print("Nenhum produto foi cadastrado")
+    for produto in produtos:
+        produto.exibir()
+print("Ola cliente, selecione o que deseja fazer no nosso sistema!")
+Rodando = True
+while Rodando:
     print("Digite 1 para cadastrar produtos")
     print("Digite 2 para listar produtos")
     print("Digite 3 para comprar produtos")
@@ -94,6 +99,15 @@ while True:
                     if (continuar != "S"):
                         print("Voltando para o menu")
                         break
+            case 2:
+                listarProdutos()
+                continuar = input("Aperte qualquer tecla pra continuar...")
+                break
+            case 4:
+                print("Finalizando o programa")
+                Rodando = False
+
+                
 
     except(ValueError):
         print("Valor invalido, digite uma das opções mostradas")
