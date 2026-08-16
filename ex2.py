@@ -1,69 +1,80 @@
-# 2- objetivo do exercício:
-# 	* variáveis
-# 	* tipos de dados e conversões
-# 	* exceções aritméticas relacionais e logicas
-# 	* estruturas de decisões como if e else
-# 	* lações de repetição, while ou for
-# 	* funções
-# 	* estruturas de dados compostas: listas e ou dicionários
-# 	* tratamento de erros: try, catch
-# 	* classes e objetos
+"""
+2- objetivo do exercício:
+	* variáveis
+	* tipos de dados e conversões
+	* exceções aritméticas relacionais e logicas
+	* estruturas de decisões como if e else
+	* lações de repetição, while ou for
+	* funções
+	* estruturas de dados compostas: listas e ou dicionários
+	* tratamento de erros: try, catch
+	* classes e objetos
 
-#    descrição:
-# você devera criar um sistema simples de cadastro de produtos e compra. 
-# O sistema devera permitir que o usuário faça:
-# cadastre produtos, visualizar produtos cadastrados, realizar uma compra, calcular o total a pagar, trate entradas invalidas
+   descrição:
+você devera criar um sistema simples de cadastro de produtos e compra. 
+O sistema devera permitir que o usuário faça:
+cadastre produtos, visualizar produtos cadastrados, realizar uma compra, calcular o total a pagar, trate entradas invalidas
 
-#   requisitos do programa:
-# requisitos funcionais: 
-# 1 - classe produto: 
-# atributos: nome, endereço
-# método: exibir
-# 2 - estrutura de dados, usar lista para armazenar os produtos
-# 3 - menu:
-#  3.1- cadastrar produto
-#  3.2- listar produtos
-#  3.3- comprar produto
-#  3.4- sair
+  requisitos do programa:
+requisitos funcionais: 
+1 - classe produto: 
+atributos: nome, endereço
+método: exibir
+2 - estrutura de dados, usar lista para armazenar os produtos
+3 - menu:
+ 3.1- cadastrar produto
+ 3.2- listar produtos
+ 3.3- comprar produto
+ 3.4- sair
 
-# 4 - cadastro produto:
-#  ao ecolher a opção 1:
-# solicite o nome do produto
-# solicite o preço
-# trate os possíveis erros
-# crie um objeto da classe produto
-# adicione o produto a lista
+4 - cadastro produto:
+ ao ecolher a opção 1:
+solicite o nome do produto
+solicite o preço
+trate os possíveis erros
+crie um objeto da classe produto
+adicione o produto a lista
 
-# 5 - listagem de produtos:
-#  ao escolher a opção 2
-# mostre todos os produtos cadastrados
-# exiba índice, nome e preço
+5 - listagem de produtos:
+ ao escolher a opção 2
+mostre todos os produtos cadastrados
+exiba índice, nome e preço
 
-# 6 - compra produto:
-# Ao escolher a opçaõ 3
-# Solicite o numero do produto
-# solicite a quantidade
-# calcule o total a pagar (valor * preço)
-# informe se o valor total é menor que 100 -> sem desconto
-# utilize expressões relacionais e elogicas
+6 - compra produto:
+Ao escolher a opçaõ 3
+Solicite o numero do produto
+solicite a quantidade
+calcule o total a pagar (valor * preço)
+informe se o valor total é menor que 100 -> sem desconto
+utilize expressões relacionais e elogicas
 
-# 7 - tratamento de erros:
-# utilize try / except para tratar
-# valores inválidos
-# índices inexistentes
-# entradas não numéricas
-# 8 - encerramento:
-# ao escolher a opção 4
-# exiba uma mensagem de encerramento
-# finalize o programa
-produtos = []
+7 - tratamento de erros:
+utilize try / except para tratar
+valores inválidos
+índices inexistentes
+entradas não numéricas
+8 - encerramento:
+ao escolher a opção 4
+exiba uma mensagem de encerramento
+finalize o programa
+"""
+import pickle
 
 class Produto:
-    def __init__(self, nome, preco):
+    def __init__(self, nome, preco, id):
+        self.id = id
         self.nome = nome
         self.preco = preco
     def exibir(self):
         print (f' nome: {self.nome} preço: {self.preco}')
+    def mostrarNome(self):
+        return self.nome
+
+try:
+    with open("database/produtos.pkl", "rb") as arquivo:
+        produtos = pickle.load(arquivo)
+except FileNotFoundError:
+    produtos = []
 
 def cadastrarProdutos():
     while True:
@@ -71,8 +82,11 @@ def cadastrarProdutos():
             print("Digite as informações pedidas")
             nome = input("Digite o nome do produto: ")
             preco = float(input("Digite o preço do produto: "))
-            produto = Produto(nome, preco)
-            return produto
+            produto = Produto(nome, preco, len(produtos))
+            produtos.append(produto)
+            with open("database/produtos.pkl", "wb") as arquivo:
+                pickle.dump(produtos, arquivo)
+            break
         except(ValueError):
             print("Insira um valor valido, insira novamente")
 def listarProdutos():
@@ -80,6 +94,44 @@ def listarProdutos():
         print("Nenhum produto foi cadastrado")
     for produto in produtos:
         produto.exibir()
+def  comprarProdutos():
+    carrinho = []
+    while True:
+        produtoCarrinho = input("Insira o nome do produto que deseja comprar: ")
+        possibilidades = []
+        for item in produtos:
+            busca = produtoCarrinho.upper() in getattr(item, "nome").upper()
+            if (busca):
+                possibilidades.append(item)
+        i = 0
+        while i < len(possibilidades):
+            print(f"[{i + 1}] - {getattr(possibilidades[i], "nome")} \n")
+            i = i + 1
+        print(f"[{i + 1}] Nenhum desses \n \n")
+        opcao = int(input("Insira uma das opções"))
+        if(opcao == i + 1):
+            continuar = input("Deseja continuar comprando? (y/n) \n")
+        else:
+            carrinhoItem = possibilidades[opcao-1].__dict__
+            print(f"{carrinhoItem["nome"]} custa {carrinhoItem["preco"]}")
+            qnt = int(input("Digite a quantidade desejada: "))
+            carrinhoItem["preco"] = carrinhoItem["preco"] * qnt
+            print(f"A compra de {carrinhoItem["nome"]} ficou {carrinhoItem["preco"]}")
+            carrinho.append(carrinhoItem)
+            continuar = input("Deseja continuar comprando? (y/n) \n")
+        if(continuar.upper() != "Y"):
+            total = 0
+            if(len(carrinho) <= 0):
+                print("Voltando ao menu")
+                input("Aperte qualquer tecla para continuar...")
+                break
+            for item in carrinho:
+                total = total + item["preco"]
+            print(f"O total a pagar foi: {total} \n Falar com o aluno Tirso que ele passa o pix pra pagar :D")
+            input("Aperte qualquer tecla para continuar...")
+            break
+
+        
 print("Ola cliente, selecione o que deseja fazer no nosso sistema!")
 Rodando = True
 while Rodando:
@@ -94,15 +146,16 @@ while Rodando:
         match resposta:
             case 1:
                 while True:
-                    produtos.append(cadastrarProdutos())
-                    continuar = input("Deseja cadastrar mais algum produto? Digite S se sim e qualquer tecla se não \n")
-                    if (continuar != "S"):
+                    cadastrarProdutos()
+                    continuar = input("Deseja cadastrar mais algum produto? (y/n) \n")
+                    if (continuar.upper() != "Y"):
                         print("Voltando para o menu")
                         break
             case 2:
                 listarProdutos()
                 continuar = input("Aperte qualquer tecla pra continuar...")
-                break
+            case 3:
+                comprarProdutos()
             case 4:
                 print("Finalizando o programa")
                 Rodando = False
