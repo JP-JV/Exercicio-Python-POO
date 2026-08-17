@@ -65,15 +65,37 @@ class Produto:
         self.id = id
         self.nome = nome
         self.preco = preco
+        self.precoTotal = 0
     def exibir(self):
-        print (f' nome: {self.nome} preço: {self.preco}')
-    def mostrarNome(self):
-        return self.nome
+        print (f'nome: {self.nome} \npreço: {self.preco}\n')
+    @property
+    def nome(self):
+        return self._nome
+    
+    @property
+    def precoTotal(self):
+        return self._precoTotal
+
+    @property
+    def preco(self):
+        return self._preco
+
+    @nome.setter
+    def nome(self, nome):
+        self._nome = nome
+    
+    @precoTotal.setter
+    def precoTotal (self, precoTotal):
+        self._precoTotal = precoTotal
+
+    @preco.setter
+    def preco (self, preco):
+        self._preco = preco
 
 try:
     with open("database/produtos.pkl", "rb") as arquivo:
         produtos = pickle.load(arquivo)
-except FileNotFoundError:
+except (FileNotFoundError, EOFError):
     produtos = []
 
 def cadastrarProdutos():
@@ -97,40 +119,43 @@ def listarProdutos():
 def  comprarProdutos():
     carrinho = []
     while True:
-        produtoCarrinho = input("Insira o nome do produto que deseja comprar: ")
-        possibilidades = []
-        for item in produtos:
-            busca = produtoCarrinho.upper() in getattr(item, "nome").upper()
-            if (busca):
-                possibilidades.append(item)
-        i = 0
-        while i < len(possibilidades):
-            print(f"[{i + 1}] - {getattr(possibilidades[i], "nome")} \n")
-            i = i + 1
-        print(f"[{i + 1}] Nenhum desses \n \n")
-        opcao = int(input("Insira uma das opções"))
-        if(opcao == i + 1):
-            continuar = input("Deseja continuar comprando? (y/n) \n")
-        else:
-            carrinhoItem = possibilidades[opcao-1].__dict__
-            print(f"{carrinhoItem["nome"]} custa {carrinhoItem["preco"]}")
-            qnt = int(input("Digite a quantidade desejada: "))
-            carrinhoItem["preco"] = carrinhoItem["preco"] * qnt
-            print(f"A compra de {carrinhoItem["nome"]} ficou {carrinhoItem["preco"]}")
-            carrinho.append(carrinhoItem)
-            continuar = input("Deseja continuar comprando? (y/n) \n")
-        if(continuar.upper() != "Y"):
-            total = 0
-            if(len(carrinho) <= 0):
-                print("Voltando ao menu")
+        try:
+            produtoCarrinho = input("Insira o nome do produto que deseja comprar: ")
+            possibilidades = []
+            for item in produtos:
+                busca = produtoCarrinho.upper() in item.nome.upper()
+                if (busca):
+                    possibilidades.append(item)
+            i = 0
+            while i < len(possibilidades):
+                print(f"[{i + 1}] - {possibilidades[i].nome} \n")
+                i = i + 1
+            print(f"[{i + 1}] Nenhum desses \n \n")
+            opcao = int(input("Insira uma das opções"))
+            if(opcao == i + 1):
+                continuar = input("Deseja continuar comprando? (y/n) \n")
+            else:
+                carrinhoItem = possibilidades[opcao-1]
+                print(f"{carrinhoItem.nome} custa {carrinhoItem.preco}")
+                qnt = int(input("Digite a quantidade desejada: "))
+                carrinhoItem.precoTotal = carrinhoItem.preco * qnt
+                print(f"A compra de {carrinhoItem.nome} ficou {carrinhoItem.precoTotal}")
+                carrinho.append(carrinhoItem)
+                continuar = input("Deseja continuar comprando? (y/n) \n")
+            if(continuar.upper() != "Y"):
+                total = 0
+                if(len(carrinho) <= 0):
+                    print("Voltando ao menu")
+                    input("Aperte qualquer tecla para continuar...")
+                    break
+                for item in carrinho:
+                    total = total + item.precoTotal
+                print(f"O total a pagar foi: {total} \n Falar com o aluno Tirso que ele passa o pix pra pagar :D")
                 input("Aperte qualquer tecla para continuar...")
                 break
-            for item in carrinho:
-                total = total + item["preco"]
-            print(f"O total a pagar foi: {total} \n Falar com o aluno Tirso que ele passa o pix pra pagar :D")
-            input("Aperte qualquer tecla para continuar...")
-            break
 
+        except ValueError:
+            print("Insira um valor valido")
         
 print("Ola cliente, selecione o que deseja fazer no nosso sistema!")
 Rodando = True
