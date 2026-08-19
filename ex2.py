@@ -116,49 +116,69 @@ def listarProdutos():
         print("Nenhum produto foi cadastrado")
     for produto in produtos:
         produto.exibir()
+def buscarProdutos():
+    produtoCarrinho = input("Insira o nome do produto que deseja comprar: ")
+    while True:
+        try:
+            possibilidades = []
+            for item in produtos:
+                busca = produtoCarrinho.lower() in item.nome.lower()
+                if (busca):
+                    possibilidades.append(item)
+            i = 1
+            for produto in possibilidades:
+                print(f"[{i}] - {produto.nome} \n")
+                i = i + 1
+            print(f"[{i}] Nenhum desses \n \n")
+            opcao = int(input("Insira uma das opções"))
+            if (opcao > i or opcao <= 0):
+                raise ValueError()
+            break
+        except ValueError:
+            print("Digite uma opção valida")
+    if(opcao != i):
+        calcularPreco(possibilidades[opcao-1])
+    return
+def calcularPreco(itemSelecionado):
+    while True:
+        try:
+            global carrinho
+            carrinhoItem = itemSelecionado
+            print(f"{carrinhoItem.nome} custa {carrinhoItem.preco}")
+            qnt = int(input("Digite a quantidade desejada: "))
+            if(qnt<=0):
+                raise ValueError()
+            carrinhoItem.precoTotal = carrinhoItem.preco * qnt
+            print(f"A compra de {carrinhoItem.nome} ficou {carrinhoItem.precoTotal}")
+            carrinho.append(carrinhoItem)
+            return
+        except ValueError:
+            print("Quantidade invalida, tente novamente ...")
 def  comprarProdutos():
+    global carrinho
     carrinho = []
     while True:
         try:
-            produtoCarrinho = input("Insira o nome do produto que deseja comprar: ")
-            possibilidades = []
-            for item in produtos:
-                busca = produtoCarrinho.upper() in item.nome.upper()
-                if (busca):
-                    possibilidades.append(item)
-            i = 0
-            while i < len(possibilidades):
-                print(f"[{i + 1}] - {possibilidades[i].nome} \n")
-                i = i + 1
-            print(f"[{i + 1}] Nenhum desses \n \n")
-            opcao = int(input("Insira uma das opções"))
-            if(opcao == i + 1):
-                continuar = input("Deseja continuar comprando? (y/n) \n")
-            else:
-                carrinhoItem = possibilidades[opcao-1]
-                print(f"{carrinhoItem.nome} custa {carrinhoItem.preco}")
-                qnt = int(input("Digite a quantidade desejada: "))
-                carrinhoItem.precoTotal = carrinhoItem.preco * qnt
-                print(f"A compra de {carrinhoItem.nome} ficou {carrinhoItem.precoTotal}")
-                carrinho.append(carrinhoItem)
-                continuar = input("Deseja continuar comprando? (y/n) \n")
-            if(continuar.upper() != "Y"):
+            buscarProdutos()
+            continuar = input("Deseja continuar comprando? (y/n) \n")
+            if(continuar.lower() != "y"):
                 total = 0
                 if(len(carrinho) <= 0):
                     print("Voltando ao menu")
                     input("Aperte qualquer tecla para continuar...")
                     break
                 for item in carrinho:
+                    print(f"Produto {item.nome} custou um total de: {item.precoTotal}")
                     total = total + item.precoTotal
-                print(f"O total a pagar foi: {total} \n Falar com o aluno Tirso que ele passa o pix pra pagar :D")
+                print(f"O total a pagar foi: {total} \n Falar com o aluno Tirso que ele passa a chave pix pra pagar :D")
                 input("Aperte qualquer tecla para continuar...")
                 break
-
         except ValueError:
             print("Insira um valor valido")
         
 print("Ola cliente, selecione o que deseja fazer no nosso sistema!")
 Rodando = True
+carrinho = []
 while Rodando:
     print("Digite 1 para cadastrar produtos")
     print("Digite 2 para listar produtos")
@@ -167,13 +187,13 @@ while Rodando:
     try:
         resposta = int(input("Digite uma das opções: "))
         if (resposta < 1 and resposta > 4):
-            raise ValueError
+            raise ValueError()
         match resposta:
             case 1:
                 while True:
                     cadastrarProdutos()
                     continuar = input("Deseja cadastrar mais algum produto? (y/n) \n")
-                    if (continuar.upper() != "Y"):
+                    if (continuar.lower() != "y"):
                         print("Voltando para o menu")
                         break
             case 2:
